@@ -2,305 +2,163 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>AI UNIVERSE</title>
-
-<!-- Tailwind CDN -->
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Marked -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra AI Chat</title>
 
 <style>
-html,body{height:100%;}
-body{background:#0f172a;}
-.glass{
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(10px);
-border:1px solid rgba(255,255,255,0.08);
+body{
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+    color:white;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
 }
-.scrollbar::-webkit-scrollbar{width:6px}
-.scrollbar::-webkit-scrollbar-thumb{
-background:#3b82f6;border-radius:10px;
+
+header{
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    background:rgba(0,0,0,0.4);
+    backdrop-filter:blur(10px);
 }
-.typing::after{
-content:'▋';
-animation:blink 1s infinite;
+
+#chat{
+    flex:1;
+    padding:20px;
+    overflow-y:auto;
 }
-@keyframes blink{
-0%,50%,100%{opacity:1}
-25%,75%{opacity:0}
+
+.message{
+    margin-bottom:15px;
+    padding:12px 16px;
+    border-radius:12px;
+    max-width:80%;
+    animation:fadeIn .3s ease;
 }
-.sidebar-hide{transform:translateX(-100%)}
+
+.user{
+    background:#00c6ff;
+    color:black;
+    align-self:flex-end;
+}
+
+.bot{
+    background:#1e1e1e;
+    border:1px solid #00c6ff;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+footer{
+    display:flex;
+    padding:10px;
+    background:rgba(0,0,0,0.4);
+    backdrop-filter:blur(10px);
+}
+
+input{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    outline:none;
+    font-size:16px;
+}
+
+button{
+    margin-left:10px;
+    padding:12px 20px;
+    border:none;
+    border-radius:8px;
+    background:#00c6ff;
+    cursor:pointer;
+    font-weight:bold;
+}
+button:hover{
+    opacity:.8;
+}
+
+#apiBox{
+    padding:10px;
+    background:#111;
+    text-align:center;
+}
 </style>
 </head>
 
-<body class="text-white min-h-screen flex">
+<body>
 
-<!-- Loader -->
-<div id="loading" class="fixed inset-0 flex items-center justify-center bg-black z-50">
-Loading AI UNIVERSE...
+<header>⚡ Ultra AI Chat</header>
+
+<div id="apiBox">
+    <input type="password" id="apiKey" placeholder="Paste your OpenAI API Key here">
 </div>
 
-<!-- Sidebar -->
-<div id="sidebar"
-class="fixed md:static inset-y-0 left-0 w-64 glass sidebar-hide md:translate-x-0 transition-transform duration-300 flex flex-col z-40">
+<div id="chat"></div>
 
-<div class="p-4 border-b border-white/10 flex justify-between items-center">
-<h1 class="font-bold text-blue-400">AI UNIVERSE</h1>
-<button id="closeSidebar" class="md:hidden">✕</button>
-</div>
-
-<button id="newChat"
-class="m-4 p-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-+ New Chat
-</button>
-
-<div id="chatList" class="flex-1 overflow-y-auto p-3 space-y-2 scrollbar"></div>
-
-<div class="p-4 border-t border-white/10">
-<button id="settingsBtn" class="text-gray-300 hover:text-white">
-⚙ Settings
-</button>
-</div>
-
-</div>
-
-<!-- Main -->
-<div class="flex-1 flex flex-col min-h-screen">
-
-<!-- Top Bar -->
-<div class="glass flex items-center justify-between p-4 border-b border-white/10">
-<button id="openSidebar" class="md:hidden">☰</button>
-<h2 id="chatTitle" class="font-semibold">New Chat</h2>
-</div>
-
-<!-- Messages -->
-<div id="messages"
-class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar"></div>
-
-<!-- Input -->
-<div class="glass p-4 border-t border-white/10">
-<div class="flex gap-3">
-<textarea id="input"
-class="flex-1 bg-transparent border border-white/10 rounded-xl p-3 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-rows="1"
-placeholder="Type your message..."></textarea>
-
-<button id="send"
-class="px-6 bg-blue-600 rounded-xl hover:bg-blue-700 transition">
-Send
-</button>
-</div>
-</div>
-
-</div>
-
-<!-- Settings Modal -->
-<div id="settingsModal"
-class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
-
-<div class="glass p-6 rounded-xl w-96 max-w-full space-y-4">
-<h3 class="font-semibold text-lg">Settings</h3>
-
-<input id="apiKey"
-type="password"
-placeholder="OpenRouter API Key"
-class="w-full p-2 rounded bg-transparent border border-white/10">
-
-<input id="model"
-type="text"
-value="deepseek/deepseek-r1:free"
-class="w-full p-2 rounded bg-transparent border border-white/10">
-
-<div class="flex justify-end gap-3">
-<button id="closeSettings">Cancel</button>
-<button id="saveSettings"
-class="bg-blue-600 px-4 py-2 rounded">Save</button>
-</div>
-</div>
-</div>
+<footer>
+    <input type="text" id="userInput" placeholder="Type message...">
+    <button onclick="sendMessage()">Send</button>
+</footer>
 
 <script>
-(function(){
-
-function get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}
-function set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-
-let chats=get("ai_chats",[]);
-let current=get("ai_current",null);
-let apiKey=get("ai_key","");
-let model=get("ai_model","deepseek/deepseek-r1:free");
-
-const messages=document.getElementById("messages");
-const chatList=document.getElementById("chatList");
-const input=document.getElementById("input");
-
-function save(){
-set("ai_chats",chats);
-set("ai_current",current);
-set("ai_key",apiKey);
-set("ai_model",model);
-}
-
-function newChat(){
-const id=Date.now()+"";
-chats.unshift({id,title:"New Chat",messages:[]});
-current=id;
-save();
-renderChats();
-renderMessages();
-}
-
-function currentChat(){
-return chats.find(c=>c.id===current);
-}
-
-function renderChats(){
-chatList.innerHTML="";
-chats.forEach(c=>{
-const d=document.createElement("div");
-d.textContent=c.title;
-d.className="p-2 rounded cursor-pointer hover:bg-white/10";
-if(c.id===current)d.classList.add("bg-white/10");
-d.onclick=()=>{current=c.id;renderChats();renderMessages();save();}
-chatList.appendChild(d);
-});
-}
-
-function renderMessages(){
-messages.innerHTML="";
-const c=currentChat();
-if(!c)return;
-document.getElementById("chatTitle").textContent=c.title;
-c.messages.forEach(m=>addMessage(m.role,m.content,false));
-scrollBottom();
-}
-
-function scrollBottom(){
-messages.scrollTop=messages.scrollHeight;
-}
-
-function addMessage(role,text,typing){
-const wrap=document.createElement("div");
-wrap.className=role==="user"?"text-right":"text-left";
-
-const bubble=document.createElement("div");
-bubble.className="inline-block max-w-2xl px-4 py-3 rounded-xl";
-if(role==="user"){
-bubble.classList.add("bg-blue-600");
-}else{
-bubble.classList.add("glass");
-}
-if(typing)bubble.classList.add("typing");
-bubble.innerHTML=marked.parse(text);
-wrap.appendChild(bubble);
-messages.appendChild(wrap);
-scrollBottom();
-return bubble;
-}
-
 async function sendMessage(){
-const text=input.value.trim();
-if(!text)return;
-if(!apiKey){alert("Add API key in settings");return;}
+    const input = document.getElementById("userInput");
+    const apiKey = document.getElementById("apiKey").value;
+    const message = input.value.trim();
+    if(!message || !apiKey) return alert("API key and message required!");
 
-const c=currentChat();
-c.messages.push({role:"user",content:text});
-addMessage("user",text,false);
-input.value="";
-save();
+    addMessage(message,"user");
+    input.value="";
 
-const assistant={role:"assistant",content:""};
-c.messages.push(assistant);
-const bubble=addMessage("assistant","",true);
+    addMessage("Typing...","bot");
 
-try{
-const res=await fetch("https://openrouter.ai/api/v1/chat/completions",{
-method:"POST",
-headers:{
-"Authorization":"Bearer "+apiKey,
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-model:model,
-messages:c.messages,
-stream:true
-})
-});
+    try{
+        const response = await fetch("https://api.openai.com/v1/chat/completions",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer " + apiKey
+            },
+            body:JSON.stringify({
+                model:"gpt-4o-mini",
+                messages:[
+                    {role:"system",content:"You are a helpful AI assistant."},
+                    {role:"user",content:message}
+                ]
+            })
+        });
 
-if(!res.body) throw new Error("No response body");
+        const data = await response.json();
+        document.querySelectorAll(".bot").forEach(el=>{
+            if(el.textContent==="Typing...") el.remove();
+        });
 
-const reader=res.body.getReader();
-const decoder=new TextDecoder();
+        if(data.choices){
+            addMessage(data.choices[0].message.content,"bot");
+        }else{
+            addMessage("Error: "+JSON.stringify(data),"bot");
+        }
 
-while(true){
-const {value,done}=await reader.read();
-if(done)break;
-const chunk=decoder.decode(value);
-chunk.split("\n").forEach(line=>{
-if(line.startsWith("data:")){
-const data=line.replace("data:","");
-if(data===" [DONE]")return;
-try{
-const json=JSON.parse(data);
-const token=json.choices?.[0]?.delta?.content;
-if(token){
-assistant.content+=token;
-bubble.innerHTML=marked.parse(assistant.content);
-scrollBottom();
-}
-}catch(e){}
-}
-});
+    }catch(err){
+        addMessage("Request Failed","bot");
+    }
 }
 
-bubble.classList.remove("typing");
-save();
-
-}catch(e){
-bubble.innerHTML="Error: "+e.message;
+function addMessage(text,type){
+    const chat = document.getElementById("chat");
+    const div = document.createElement("div");
+    div.className="message "+type;
+    div.textContent=text;
+    chat.appendChild(div);
+    chat.scrollTop=chat.scrollHeight;
 }
-}
-
-document.getElementById("send").onclick=sendMessage;
-input.addEventListener("keydown",e=>{
-if(e.key==="Enter"&&!e.shiftKey){
-e.preventDefault();
-sendMessage();
-}
-});
-
-document.getElementById("newChat").onclick=newChat;
-
-/* Sidebar */
-document.getElementById("openSidebar").onclick=()=>{
-document.getElementById("sidebar").classList.remove("sidebar-hide");
-};
-document.getElementById("closeSidebar").onclick=()=>{
-document.getElementById("sidebar").classList.add("sidebar-hide");
-};
-
-/* Settings */
-document.getElementById("settingsBtn").onclick=()=>{
-document.getElementById("settingsModal").classList.remove("hidden");
-};
-document.getElementById("closeSettings").onclick=()=>{
-document.getElementById("settingsModal").classList.add("hidden");
-};
-document.getElementById("saveSettings").onclick=()=>{
-apiKey=document.getElementById("apiKey").value.trim();
-model=document.getElementById("model").value.trim();
-save();
-document.getElementById("settingsModal").classList.add("hidden");
-};
-
-if(!current||!currentChat())newChat();
-renderChats();
-renderMessages();
-document.getElementById("loading").style.display="none";
-
-})();
 </script>
 
 </body>
